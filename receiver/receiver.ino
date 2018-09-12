@@ -8,18 +8,19 @@ const byte address[6] = "00001";
 const byte MSG = 39;
 const byte ACK[1] = {90};
 
-#define LED_PIN 4
+#define LED_PIN 10
 
 unsigned long prevTime;
 bool ledState = false;
 #define FREQUENCY 100
-#define FLASHES 40
+#define FLASHES 20
 
 bool alarmState = false;
 unsigned long alarmStart = 0;
 
 bool messageAvailable() {
   if (radio.available()) {
+    Serial.println("here");
     byte rec[1];
     radio.read(&rec, sizeof(rec));
     if (rec[0] == MSG) {      
@@ -44,6 +45,7 @@ void alarm() {
 }
 
 void setup() {
+  Serial.begin(9600);
   pinMode(LED_PIN, OUTPUT);
 
   radio.begin();
@@ -64,4 +66,3 @@ void loop() {
 
   alarm();
 }
-

@@ -13,13 +13,15 @@ const byte ACK = 90;
 
 bool sendMessage = false;
 unsigned long sendMessageTime;
-#define FREQUENCY 500
+#define FREQUENCY 75
 int tries = 0;
+
+void(* resetFunc) (void) = 0;//declare reset function at address 0
 
 bool updateRadio() {
   if (sendMessage == true) {
     radio.stopListening();
-    if (tries < 15) {
+    if (tries < 5) {
       if (millis() - sendMessageTime >= FREQUENCY) {
         sendMessageTime = millis();
         radio.write(&MSG, sizeof(MSG));
@@ -36,6 +38,9 @@ bool updateRadio() {
           tries ++;
         }
       }
+    }
+    else{
+      resetFunc();
     }
   }
 
@@ -54,12 +59,14 @@ void setup() {
   radio.setRetries(15, 15);
   radio.setPALevel(RF24_PA_MIN);
 
+  Serial.begin(9600);
   pinMode(6, INPUT);
 }
 
 void loop() {
   bool state = digitalRead(6);
   if (state && prevState == false) {
+    Serial.println("here");
     sendMessage = true;
     sendMessageTime = millis() - FREQUENCY;
   }
@@ -67,4 +74,3 @@ void loop() {
   updateRadio();
   prevState = state;
 }
-
